@@ -31,6 +31,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             sudo -i
-            sudo cd /home/ubuntu/omnecal
-            sudo git pull origin dev
-            sudo docker compose up --no-deps -d --build omnecal-backend
+            cd /home/ubuntu/omnecal
+            git pull origin dev
+            docker compose up --no-deps -d --build omnecal-backend
