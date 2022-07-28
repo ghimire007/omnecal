@@ -32,5 +32,5 @@ jobs:
           script: |
             cd /home/ubuntu/omnecal
             git pull origin dev
-            docker-compose up --no-deps -d --build omnecal-backend
+            docker compose up --no-deps -d --build omnecal-backend
             docker exec omnecal-backend alembic upgrade head
