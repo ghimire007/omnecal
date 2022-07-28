@@ -24,7 +24,7 @@ app.include_router(userrouter, prefix="/api/v1")
 
 @app.get("/")
 async def root(db: Session = Depends()) -> Dict:
-    return {"message": "Hello World"}
+    return {"message": "Hello Tom"}
 
 
 """
