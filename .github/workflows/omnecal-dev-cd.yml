@@ -31,7 +31,6 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             sudo -i
-            cd /home/ubuntu/omnecal
-            git pull origin dev
-            docker compose up --no-deps -d --build omnecal-backend
-            docker exec omnecal-backend alembic upgrade head
+            sudo cd /home/ubuntu/omnecal
+            sudo git pull origin dev
+            sudo docker compose up --no-deps -d --build omnecal-backend
