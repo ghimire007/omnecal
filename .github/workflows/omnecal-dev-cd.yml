@@ -30,6 +30,7 @@ jobs:
           key : ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/omnecal
+            cd /home/ubuntu/omnecal
             git pull origin dev
+            docker-compose up --no-deps -d --build omnecal-backend
             docker exec omnecal-backend alembic upgrade head
