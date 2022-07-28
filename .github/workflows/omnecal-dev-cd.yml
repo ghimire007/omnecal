@@ -32,5 +32,5 @@ jobs:
           script: |
             sudo -i
             cd /home/ubuntu/omnecal
-            git pull origin dev
-            docker compose up --no-deps -d --build omnecal-backend
+            sudo git pull origin dev
+            sudo docker compose up --no-deps -d --build omnecal-backend
