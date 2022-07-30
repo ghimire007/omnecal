@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 from config.database import create_start_app_handler, create_stop_app_handler
 from sqlalchemy.orm import Session
 from typing import Dict
-from userService.v1.router import userrouter
+from userService.v1.routers import userrouter
 
 
 tags_metadata = [
