@@ -1,4 +1,4 @@
-﻿alembic==1.8.1
+alembic==1.8.1
 anyio==3.6.1
 asyncpg==0.26.0
 cfgv==3.3.1
