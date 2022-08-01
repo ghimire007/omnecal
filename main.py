@@ -3,12 +3,22 @@ from config.database import create_start_app_handler, create_stop_app_handler
 from sqlalchemy.orm import Session
 from typing import Dict
 from userService.v1.routers import userrouter
+from companyService.v1.routers import companyrouter
+from busService.v1.routers import busrouter
 
 
 tags_metadata = [
     {
         "name": "users",
         "description": "Operations with users and authentication",
+    },
+    {
+        "name": "company",
+        "description": "Operations with companies",
+    },
+    {
+        "name": "bus",
+        "description": "Operations with bus",
     },
 ]
 
@@ -20,6 +30,8 @@ app.add_event_handler("shutdown", create_stop_app_handler(app))
 
 
 app.include_router(userrouter, prefix="/api/v1")
+app.include_router(companyrouter, prefix="/api/v1")
+app.include_router(busrouter, prefix="/api/v1")
 
 
 @app.get("/")

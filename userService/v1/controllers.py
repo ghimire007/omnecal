@@ -47,6 +47,12 @@ class UserController:
         return await database.execute(query)
 
     @staticmethod
+    async def check_user_by_id(id: str) -> bool:
+        query = select(User).where(User.id == id)
+        query = select(exists(query))
+        return await database.execute(query)
+
+    @staticmethod
     async def get_user_by_phone(number: str) -> User:
         query = select(User).where(User.mobile_number == number)
         return await database.fetch_one(query)

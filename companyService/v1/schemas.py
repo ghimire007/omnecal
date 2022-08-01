@@ -6,6 +6,5 @@ class Message(BaseModel):
 
 
 class CompanyRegister(BaseModel):
-    id: int
     name: str
     address: str

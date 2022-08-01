@@ -7,7 +7,7 @@ import re
 
 async def is_authenticated(request: Request, TokenHandler: AuthJWT = Depends()):
     try:
-        TokenHandler.jwt_refresh_token_required()
+        TokenHandler.jwt_required()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token"
@@ -16,7 +16,12 @@ async def is_authenticated(request: Request, TokenHandler: AuthJWT = Depends()):
 
 
 async def is_owner(request: Request, TokenHandler: AuthJWT = Depends()):
-    TokenHandler.jwt_required()
+    try:
+        TokenHandler.jwt_required()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token"
+        )
     user = await (UserController.get_user_by_id(TokenHandler.get_jwt_subject()))
     if user.category != "owner" and user.category != "superuser":
         raise HTTPException(
@@ -27,7 +32,12 @@ async def is_owner(request: Request, TokenHandler: AuthJWT = Depends()):
 
 
 async def is_driver(request: Request, TokenHandler: AuthJWT = Depends()):
-    TokenHandler.jwt_required()
+    try:
+        TokenHandler.jwt_required()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token"
+        )
     user = await (UserController.get_user_by_id(TokenHandler.get_jwt_subject()))
     if user.category != "driver" and user.category != "superuser":
         raise HTTPException(
@@ -38,7 +48,12 @@ async def is_driver(request: Request, TokenHandler: AuthJWT = Depends()):
 
 
 async def is_superuser(request: Request, TokenHandler: AuthJWT = Depends()):
-    TokenHandler.jwt_required()
+    try:
+        TokenHandler.jwt_required()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token"
+        )
     user = await (UserController.get_user_by_id(TokenHandler.get_jwt_subject()))
     if user.category != "superuser":
         raise HTTPException(

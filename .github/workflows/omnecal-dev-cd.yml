@@ -33,4 +33,6 @@ jobs:
             sudo -i
             cd /home/ubuntu/omnecal
             sudo git pull origin dev
+            sudo docker exec omnecal-backend alembic revision --autogenerate
+            sudo docker exec omnecal-backend alembic upgrade head
             sudo docker compose up --no-deps -d --build omnecal-backend
