@@ -39,7 +39,7 @@ services:
       - default
 
   db_1:
-    image: postgres:14.1-alpine
+    image: postgis/postgis:10-3.2-alpine
     container_name: omnecal_pg1
     restart: always
     environment:

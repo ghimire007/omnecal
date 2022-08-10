@@ -61,3 +61,25 @@ async def is_superuser(request: Request, TokenHandler: AuthJWT = Depends()):
             detail="You are not authorized",
         )
     return user
+
+
+async def is_owner_or_driver(
+    request: Request, TokenHandler: AuthJWT = Depends()
+):
+    try:
+        TokenHandler.jwt_required()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token"
+        )
+    user = await (UserController.get_user_by_id(TokenHandler.get_jwt_subject()))
+    if (
+        user.category != "owner"
+        and user.category != "driver"
+        and user.category != "superuser"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized",
+        )
+    return user

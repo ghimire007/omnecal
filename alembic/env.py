@@ -32,6 +32,7 @@ from userService.v1.models import *
 from companyService.v1.models import *
 from busService.v1.models import *
 
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

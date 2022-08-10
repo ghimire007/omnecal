@@ -7,6 +7,12 @@ from companyService.v1.routers import companyrouter
 from busService.v1.routers import busrouter
 
 
+from busService.v1.socket_manager import socketManager
+from busService.v1.controllers import BusController, TripController
+import json
+from fastapi import WebSocket, WebSocketDisconnect
+
+
 tags_metadata = [
     {
         "name": "users",
@@ -39,16 +45,20 @@ async def root(db: Session = Depends()) -> Dict:
     return {"message": "Hello Tom"}
 
 
-"""
-@app.post("/user/register")
-async def createUser(request:UserSignup,response_model=UserResponse):
-    query=usermodels.Users.insert().values(**request.dict())
-    try:
-       user_id=await database.execute(query)
-       return {**request.dict(),"id":user_id}
-    except Exception as e:
-        print(e)
+@app.websocket("/test/ws/{bus_id}")
+async def track_bus(websocket: WebSocket, bus_id: int):
+    print("here")
+    await socketManager.connect(websocket, bus_id)
+    while True:
+        try:
+            data = await websocket.receive_text()
+            message_data = json.loads(data)
+            print(message_data)
+            await TripController.create_bus_route(
+                {**message_data, "bus_id": bus_id}
+            )
 
-    return{"hello":"hello"}
-
-"""
+            await socketManager.broadcast(data)
+        except WebSocketDisconnect as e:
+            print(e)
+            await socketManager.disconnect(websocket, bus_id)
