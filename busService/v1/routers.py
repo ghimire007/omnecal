@@ -159,3 +159,18 @@ async def track_bus(websocket: WebSocket,
 
 
           """
+
+
+@busrouter.get("/live/{bus_id}", response_model=Message, status_code=200)
+async def createData(
+    bus_id: int, latitude: float, longitude: float, address: str
+):
+    await TripController.create_bus_route(
+        {
+            "bus_id": bus_id,
+            "latitude": latitude,
+            "longitude": longitude,
+            "address": address,
+        }
+    )
+    return Message(message=f"a location registered")
