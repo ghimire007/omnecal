@@ -51,6 +51,7 @@ class Bus(Base):
             nullable=False,
         ),
         Column("document", String(200), nullable=True),
+        Column("token", String(350), unique=True, nullable=True),
         Column("registered_at", DateTime, server_default=func.now()),
     )
 
@@ -126,14 +127,15 @@ class BusLocation(Base):
             unique=True,
         ),
         Column("latitude", DECIMAL(10, 8), nullable=False),
-        Column("latitude", DECIMAL(11, 8), nullable=False),
+        Column("longitude", DECIMAL(11, 8), nullable=False),
         Column("location", Geometry("POINT"), index=True, nullable=False),
+        Column("speed", Float),
     )
 
 
-class BusRoute(Base):
+class BusTrackingHistory(Base):
     __table__ = Table(
-        "busroute",
+        "bus_tracking_history",
         metadata,
         Column(
             "id",
@@ -143,9 +145,15 @@ class BusRoute(Base):
             unique=True,
             nullable=False,
         ),
+        Column(
+            "bus",
+            BigInteger,
+            ForeignKey("Bus.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         Column("latitude", DECIMAL(10, 8), nullable=False),
         Column("longitude", DECIMAL(11, 8), nullable=False),
-        Column("bus_id", Integer, nullable=False),
-        Column("address", String, nullable=False),
+        Column("location", Geometry("POINT"), index=True, nullable=False),
+        Column("speed", Float),
         Column("time", DateTime, server_default=func.now()),
     )

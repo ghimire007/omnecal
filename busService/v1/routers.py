@@ -4,7 +4,6 @@ from fastapi import (
     status,
     HTTPException,
     Depends,
-    WebSocket,
 )
 from companyService.v1.schemas import Message
 from busService.v1.schemas import BusRegister, TripRegister
@@ -18,9 +17,7 @@ from config.middlewares import (
     is_authenticated,
 )
 from config.deps import get_controller
-from busService.v1.socket_manager import socketManager
-from starlette.websockets import WebSocket, WebSocketDisconnect, WebSocketState
-import json
+from config.config import AuthJWT
 
 
 busrouter = APIRouter(prefix="/bus", tags=["bus"])
@@ -33,6 +30,7 @@ async def createBus(
     company_id: int,
     request: BusRegister,
     user: User = Depends(is_owner),
+    TokenHandler: AuthJWT = Depends(),
     busController: BusController = Depends(get_controller(BusController)),
 ):
     if not (company := await CompanyController.get_company_by_id(company_id)):
@@ -53,6 +51,7 @@ async def createBus(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="staf doesn't belog to company",
         )
+
     if await busController.check_bus_by_number(request.bus_number):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="bus already exists"
@@ -61,7 +60,38 @@ async def createBus(
     bus_id = await busController.create_bus(
         {**request.dict(), "owner": user.id, "company": company_id}
     )
-    return Message(message=f"bus successfully regitered with id {bus_id}")
+    token = busController.create_bus_token(
+        TokenHandler, bus_id, request.bus_number
+    )
+    print(token)
+    await busController.update_bus(bus_id, {"token": token})
+    return Message(message=f"bus successfully regitered ")
+
+
+# replace the api token for IOT to communicate with server
+@busrouter.post(
+    "/token/replace/{bus_id}", response_model=Message, status_code=200
+)
+async def updateToken(
+    bus_id: int,
+    user: User = Depends(is_owner),
+    TokenHandler: AuthJWT = Depends(),
+    busController: BusController = Depends(get_controller(BusController)),
+):
+    if not (bus := busController.get_bus_by_id(bus_id)):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="no bus exists"
+        )
+
+    if not (bus.owner != user.id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="no bus exists"
+        )
+    new_token = busController.create_bus_token(
+        TokenHandler, bus.id, bus.bus_number
+    )
+    busController.update_bus(bus_id, {"token": new_token})
+    return Message(message=f"token updated successfully")
 
 
 @busrouter.post(
@@ -115,62 +145,3 @@ async def startTrip(
     )
 
     return Message(message=f"bus successfully regitered with id {trip}")
-
-
-"""
-@busrouter.websocket_route("/live/{bus_id}")
-async def track_bus(websocket: WebSocket,
- bus_id: int,
- user: User = Depends(is_owner_or_driver)):
-   await socketManager.connect(websocket,bus_id)
-   while True:
-            try:
-                data = await websocket.receive_text()
-                message_data = json.loads(data)
-                if "type" in message_data and message_data["type"] == "dismissal":
-                    await socketManager.disconnect(websocket,bus_id)
-                    break
-                await socketManager.broadcast(data)
-            except WebSocketDisconnect:
-                await socketManager.disconnect(websocket,bus_id)
-
-
-
-
-
-@busrouter.websocket_route("/test/{bus_id}")
-async def track_bus(websocket: WebSocket,
- bus_id: str):
-   await socketManager.connect(websocket,bus_id)
-   while True:
-            try:
-                data = await websocket.receive_text()
-                message_data = json.loads(data)
-                print(message_data)
-                #if "type" in message_data and message_data["type"] == "dismissal":
-                #    await socketManager.disconnect(websocket,bus_id)
-                #   break
-                await TripController.create_bus_route({**message_data,"bus_id":bus_id})
-
-                await socketManager.broadcast(data)
-            except WebSocketDisconnect as e:
-                 print(e)
-                 await socketManager.disconnect(websocket,bus_id)
-
-
-          """
-
-
-@busrouter.get("/live/{bus_id}", response_model=Message, status_code=200)
-async def createData(
-    bus_id: int, latitude: float, longitude: float, address: str
-):
-    await TripController.create_bus_route(
-        {
-            "bus_id": bus_id,
-            "latitude": latitude,
-            "longitude": longitude,
-            "address": address,
-        }
-    )
-    return Message(message=f"a location registered")

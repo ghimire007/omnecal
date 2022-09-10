@@ -1,10 +1,10 @@
 from userService.v1.models import User
 from companyService.v1.models import Company
-from busService.v1.models import Bus, Trip, BusLocation
-from busService.v1.models import BusRoute
+from busService.v1.models import Bus, Trip, BusLocation, BusTrackingHistory
 from config.database import database
 from typing import Dict
-from sqlalchemy.sql.expression import exists, select, insert, update
+from sqlalchemy.sql.expression import exists, select, insert, update, delete
+from config.config import AuthJWT
 
 
 class BusController:
@@ -18,9 +18,20 @@ class BusController:
         return await database.execute(select(exists(query)))
 
     @staticmethod
-    async def get_bus_by_id(number: id) -> Bus:
+    async def get_bus_by_id(id: int) -> Bus:
         query = select(Bus).where(Bus.id == id)
         return await database.fetch_one(query)
+
+    async def update_bus(self, id: int, data: Dict) -> Bus:
+        query = update(Bus).values(data).where(Bus.id == id)
+        return await database.execute(query)
+
+    def create_bus_token(
+        self, TokenHandler: AuthJWT, bus_id: int, bus_number: str
+    ) -> str:
+        return TokenHandler.create_access_token(
+            subject=f"{bus_id}__{bus_number}", expires_time=5000 * 24 * 60 * 60
+        )
 
 
 class TripController:
@@ -46,7 +57,26 @@ class TripController:
         query = update(Trip).values({"status": status}).where(Trip.id == id)
         return await database.execute(query)
 
-    @staticmethod
-    async def create_bus_route(data: Dict):
-        query = insert(BusRoute).values(**data)
+
+class BusLocationController:
+    async def create_bus_location(self, data: Dict):
+        query = insert(BusLocation).values(**data)
+        return await database.execute(query)
+
+    async def check_bus_location(self, bus_id: int):
+        query = select(BusLocation).where(BusLocation.bus == bus_id)
+        return await database.execute(select(exists(query)))
+
+    async def update_bus_location(self, data: Dict, bus_id: int):
+        query = (
+            update(BusLocation).values(data).where(BusLocation.bus == bus_id)
+        )
+        return await database.execute(query)
+
+    async def delete_bus_location(self, bus_id: int):
+        query = delete(BusLocation).where(BusLocation.bus == bus_id)
+        return await database.execute(query)
+
+    async def create_bus_history(self, data: Dict):
+        query = insert(BusTrackingHistory).values(**data)
         return await database.execute(query)
