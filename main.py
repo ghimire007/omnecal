@@ -44,10 +44,12 @@ async def root(db: Session = Depends()) -> Dict:
 @app.websocket("/ws/bus/live/{bus_id}")
 async def track_bus(
     websocket: WebSocket,
-    bus_id: int,
-    token: str,
-    is_bus: bool = Depends(is_bus_or_authenticated),
+    bus_id: int
+    # token: str,
+    # is_bus: bool = Depends(is_bus_or_authenticated),
 ):
-    if is_bus == "unverified":
+    """if is_bus == "unverified":
         await websocket.close()
     await relay_data(websocket, bus_id, is_bus == "owner")
+    """
+    await relay_data(websocket, bus_id, True)
