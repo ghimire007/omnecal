@@ -64,9 +64,9 @@ class UserController:
 
     @classmethod
     async def authenticate_user(
-        cls, mobile_number: str, password: str
+        self, mobile_number: str, password: str
     ) -> bool | User:
-        user = await cls.get_user_by_phone(mobile_number)
+        user = await self.get_user_by_phone(mobile_number)
         if not user:
             return False
         if not bcrypt.verify(password, user.password):
