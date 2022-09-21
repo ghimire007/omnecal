@@ -80,3 +80,26 @@ class BusLocationController:
     async def create_bus_history(self, data: Dict):
         query = insert(BusTrackingHistory).values(**data)
         return await database.execute(query)
+
+    async def insert_or_update_bus_location(
+        self, message_data: Dict, bus_id: int
+    ):
+        async with database.transaction():
+            location = (
+                f'POINT({message_data["longitude"]} {message_data["latitude"]})'
+            )
+            if not (await self.check_bus_location(bus_id)):
+                await self.create_bus_location(
+                    {
+                        **message_data,
+                        "bus": bus_id,
+                        "location": location,
+                    }
+                )
+            else:
+                await self.update_bus_location(
+                    {**message_data, "location": location}, bus_id
+                )
+            await self.create_bus_history(
+                {**message_data, "bus": bus_id, "location": location}
+            )

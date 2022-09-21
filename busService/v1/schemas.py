@@ -16,3 +16,9 @@ class TripRegister(BaseModel):
     starts_at: datetime
     ends_at: datetime
     route: str
+
+
+class BusLocation(BaseModel):
+    latitude: float
+    longitude: float
+    speed: float

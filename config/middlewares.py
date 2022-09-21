@@ -93,6 +93,27 @@ async def is_owner_or_driver(
     return user
 
 
+async def is_bus_or_authenticated_req(
+    request: Request, TokenHandler: AuthJWT = Depends()
+):
+    try:
+        TokenHandler.jwt_required()
+    except Exception as e:
+        return "unverified"
+    subject = TokenHandler.get_jwt_subject()
+    if "__" in str(subject):
+        bus_id, bus_number = subject.split("__")
+        if not (bus := await BusController.get_bus_by_id(int(bus_id))):
+            return "unverified"
+        if bus.bus_number != bus_number or bus.token != TokenHandler._token:
+            return "unverified"
+        return "owner"
+    user = await (UserController.check_user_by_id(subject))
+    if not user:
+        return "unverified"
+    return "user"
+
+
 async def is_bus_or_authenticated(
     websocket: WebSocket, token: str, TokenHandler: AuthJWT = Depends()
 ):

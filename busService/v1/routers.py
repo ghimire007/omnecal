@@ -6,8 +6,12 @@ from fastapi import (
     Depends,
 )
 from companyService.v1.schemas import Message
-from busService.v1.schemas import BusRegister, TripRegister
-from busService.v1.controllers import BusController, TripController
+from busService.v1.schemas import BusRegister, TripRegister, BusLocation
+from busService.v1.controllers import (
+    BusController,
+    TripController,
+    BusLocationController,
+)
 from companyService.v1.controllers import CompanyController
 from userService.v1.models import User
 from config.middlewares import (
@@ -15,6 +19,7 @@ from config.middlewares import (
     is_owner_or_driver,
     is_driver,
     is_authenticated,
+    is_bus_or_authenticated,
 )
 from config.deps import get_controller
 from config.config import AuthJWT
@@ -145,3 +150,19 @@ async def startTrip(
     )
 
     return Message(message=f"bus successfully regitered with id {trip}")
+
+
+@busrouter.post(
+    "/live/create/{bus_id}", response_model=Message, status_code=201
+)
+async def post_location(
+    request: BusLocation,
+    bus_id: int,
+    busLocationController: BusLocationController = Depends(
+        get_controller(BusLocationController)
+    ),
+):
+    await busLocationController.insert_or_update_bus_location(
+        request.dict(), bus_id
+    )
+    return Message(message=f"bus location successfully tracked")
