@@ -6,6 +6,7 @@ from config.config import AuthJWT
 from config.deps import get_controller
 from fastapi import Depends
 from config.middlewares import is_authenticated
+from config.logging import logger
 
 
 userrouter = APIRouter(prefix="/users", tags=["users"])
@@ -45,6 +46,7 @@ async def loginUser(
     userController: UserController = Depends(get_controller(UserController)),
 ):
     if not (user := await userController.authenticate_user(**request.dict())):
+        logger.info("no user exists")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="either password or mobile_number is incorrect",
