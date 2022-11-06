@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TypedDict, Any, Dict
 
 
 class BusRegister(BaseModel):
@@ -22,3 +22,7 @@ class BusLocation(BaseModel):
     latitude: float
     longitude: float
     speed: float
+
+
+class Route(BaseModel):
+    meta_data: dict
