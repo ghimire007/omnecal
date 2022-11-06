@@ -36,12 +36,13 @@ app.include_router(companyrouter, prefix="/api/v1")
 app.include_router(busrouter, prefix="/api/v1")
 
 
-@app.get("/")
+"""@app.get("/")
 async def root(db: Session = Depends()) -> Dict:
     return {"message": "Hello Tom"}
+"""
 
 
-@app.websocket("/ws/bus/live/{bus_id}")
+@app.websocket("/wb/{bus_id}")
 async def track_bus(
     websocket: WebSocket,
     bus_id: int

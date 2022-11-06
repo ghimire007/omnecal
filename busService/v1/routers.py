@@ -1,16 +1,11 @@
-from fastapi import (
-    APIRouter,
-    Response,
-    status,
-    HTTPException,
-    Depends,
-)
+from fastapi import APIRouter, Response, status, HTTPException, Depends, Request
 from companyService.v1.schemas import Message
-from busService.v1.schemas import BusRegister, TripRegister, BusLocation
+from busService.v1.schemas import BusRegister, TripRegister, BusLocation, Route
 from busService.v1.controllers import (
     BusController,
     TripController,
     BusLocationController,
+    RouteController,
 )
 from companyService.v1.controllers import CompanyController
 from userService.v1.models import User
@@ -23,6 +18,7 @@ from config.middlewares import (
 )
 from config.deps import get_controller
 from config.config import AuthJWT
+from typing import List
 
 
 busrouter = APIRouter(prefix="/bus", tags=["bus"])
@@ -165,4 +161,46 @@ async def post_location(
     await busLocationController.insert_or_update_bus_location(
         request.dict(), bus_id
     )
+    return Message(message=f"bus location successfully tracked")
+
+
+@busrouter.post("/route/create", response_model=Message, status_code=201)
+async def post_route(
+    request: Request,
+    routeController: RouteController = Depends(RouteController),
+):
+    await routeController.create_route(await request.json())
+    return Message(message=f"bus location successfully tracked")
+
+
+@busrouter.get("/route/list", response_model=List[Route], status_code=200)
+async def get_route(
+    request: Request,
+    longitude_start: float,
+    latitude_start: float,
+    latitude_end: float,
+    longitude_end: float,
+    routeController: RouteController = Depends(RouteController),
+):
+    nearest_stop_user = await routeController.get_closest_busstop(
+        latitude_start, longitude_start
+    )
+    print(nearest_stop_user.name)
+    nearest_stop_destination = await routeController.get_closest_busstop(
+        latitude_end, longitude_end
+    )
+    print(nearest_stop_destination.name)
+    available_routes = await routeController.get_route_with_cordinates(
+        nearest_stop_user.location, nearest_stop_destination.location
+    )
+
+    return available_routes
+
+
+@busrouter.post("/busstops/create", response_model=Message, status_code=200)
+async def create_ROUTE(
+    request: Request,
+    routeController: RouteController = Depends(RouteController),
+):
+    await routeController.add_bus_stops()
     return Message(message=f"bus location successfully tracked")

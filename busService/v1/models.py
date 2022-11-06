@@ -12,9 +12,10 @@ from sqlalchemy import (
     Integer,
     DECIMAL,
     Float,
+    ARRAY,
+    JSON,
 )
-from userService.v1.models import User
-from companyService.v1.models import Company
+
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -156,4 +157,40 @@ class BusTrackingHistory(Base):
         Column("location", Geometry("POINT"), index=True, nullable=False),
         Column("speed", Float),
         Column("time", DateTime, server_default=func.now()),
+    )
+
+
+class Route(Base):
+    __table__ = Table(
+        "routes",
+        metadata,
+        Column(
+            "id",
+            BigInteger,
+            primary_key=True,
+            index=True,
+            unique=True,
+            nullable=False,
+        ),
+        Column("meta_data", JSON, nullable=False),
+        Column("route", Geometry("LINESTRING"), nullable=False),
+    )
+
+
+class BusStops(Base):
+    __table__ = Table(
+        "bus_stops",
+        metadata,
+        Column(
+            "id",
+            BigInteger,
+            primary_key=True,
+            index=True,
+            unique=True,
+            nullable=False,
+        ),
+        Column("latitude", DECIMAL(10, 8), index=True, nullable=False),
+        Column("longitude", DECIMAL(11, 8), index=True, nullable=False),
+        Column("location", Geometry("POINT"), index=True, nullable=False),
+        Column("name", String(250), nullable=False),
     )
