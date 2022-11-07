@@ -14,7 +14,7 @@ from sqlalchemy.sql.expression import exists, select, insert, update, delete
 from config.config import AuthJWT
 from shapely.geometry import asShape, LineString
 from geoalchemy2 import comparator, func
-from geoalchemy2.shape import to_shape
+from geoalchemy2.shape import to_shape, from_shape
 from geoalchemy2.comparator import Comparator
 from sqlalchemy import and_
 
@@ -122,7 +122,7 @@ class RouteController:
         # geojson_geom = geojson.loads(json.dumps(route["route"]))
         # route["route"]= from_shape(Polygon(geojson_geom))
         # route["route"]= from_shape(Polygon(route["route"]["coordinates"][0]))
-        route["route"] = shape.from_shape(
+        route["route"] = from_shape(
             LineString(route["meta_data"]["coordinates"])
         )
         query = insert(Route).values(**route)
@@ -226,7 +226,3 @@ class RouteController:
         print(buildings.head())
 
        '''
-
-
-# query = select(Route).where(Route.id==3)
-# return await database.fetch_one(query)
