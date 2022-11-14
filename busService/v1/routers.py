@@ -19,6 +19,8 @@ from config.middlewares import (
 from config.deps import get_controller
 from config.config import AuthJWT
 from typing import List
+import requests
+import polyline
 
 
 busrouter = APIRouter(prefix="/bus", tags=["bus"])
@@ -185,16 +187,32 @@ async def get_route(
     nearest_stop_user = await routeController.get_closest_busstop(
         latitude_start, longitude_start
     )
-    print(nearest_stop_user.name)
+
     nearest_stop_destination = await routeController.get_closest_busstop(
         latitude_end, longitude_end
     )
-    print(nearest_stop_destination.name)
+    nearest_walk_route = f"https://maps.open-street.com/api/route/?origin={latitude_start:.6f},{longitude_start:.6f}&destination={nearest_stop_user.latitude:.6f},{nearest_stop_user.longitude:.6f}&mode=walking&key=9411f16c73a0962ebf9738261e6e25b8"
+    wr1 = requests.get(nearest_walk_route).json()
+
+    nearest_stop_route = f"https://maps.open-street.com/api/route/?origin={latitude_end:.6f},{longitude_end:.6f}&destination={nearest_stop_destination.latitude:.6f},{nearest_stop_destination.longitude:.6f}&mode=walking&key=9411f16c73a0962ebf9738261e6e25b8"
+    wr2 = requests.get(nearest_stop_route).json()
+
     available_routes = await routeController.get_route_with_cordinates(
         nearest_stop_user.location, nearest_stop_destination.location
     )
+    # d={"meta_data":available_routes[0]["meta_data"],"towards_stop":polyline.decode(wr1["polyline"]),
+    # "towards_destination":polyline.decode(wr2["polyline"])}
+    # available_routes[0]["meta_data"]=polyline.decode(wr1["polyline"])
+    # available_routes[0]["meta_data"]=polyline.decode(wr2["polyline"])
 
-    return available_routes
+    # return available_routes
+    return [
+        Route(
+            meta_data=available_routes[0]["meta_data"],
+            towards_stop=polyline.decode(wr1["polyline"]),
+            towards_destination=polyline.decode(wr2["polyline"]),
+        )
+    ]
 
 
 @busrouter.post("/busstops/create", response_model=Message, status_code=200)

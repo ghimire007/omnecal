@@ -26,3 +26,5 @@ class BusLocation(BaseModel):
 
 class Route(BaseModel):
     meta_data: dict
+    towards_stop: list
+    towards_destination: list
