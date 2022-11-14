@@ -17,6 +17,7 @@ from geoalchemy2 import comparator, func
 from geoalchemy2.shape import to_shape, from_shape
 from geoalchemy2.comparator import Comparator
 from sqlalchemy import and_
+import polyline
 
 
 class BusController:
