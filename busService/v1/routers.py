@@ -191,10 +191,10 @@ async def get_route(
     nearest_stop_destination = await routeController.get_closest_busstop(
         latitude_end, longitude_end
     )
-    nearest_walk_route = f"https://maps.open-street.com/api/route/?origin={latitude_start:.6f},{longitude_start:.6f}&destination={nearest_stop_user.latitude:.6f},{nearest_stop_user.longitude:.6f}&mode=walking&key=9411f16c73a0962ebf9738261e6e25b8"
+    nearest_walk_route = f"https://maps.open-street.com/api/route/?origin={latitude_start:.6f},{longitude_start:.6f}&destination={nearest_stop_user.latitude:.6f},{nearest_stop_user.longitude:.6f}&mode=driving&key=9411f16c73a0962ebf9738261e6e25b8"
     wr1 = requests.get(nearest_walk_route).json()
 
-    nearest_stop_route = f"https://maps.open-street.com/api/route/?origin={latitude_end:.6f},{longitude_end:.6f}&destination={nearest_stop_destination.latitude:.6f},{nearest_stop_destination.longitude:.6f}&mode=walking&key=9411f16c73a0962ebf9738261e6e25b8"
+    nearest_stop_route = f"https://maps.open-street.com/api/route/?origin={latitude_end:.6f},{longitude_end:.6f}&destination={nearest_stop_destination.latitude:.6f},{nearest_stop_destination.longitude:.6f}&mode=driving&key=9411f16c73a0962ebf9738261e6e25b8"
     wr2 = requests.get(nearest_stop_route).json()
 
     available_routes = await routeController.get_route_with_cordinates(
