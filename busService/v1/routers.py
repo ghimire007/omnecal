@@ -206,9 +206,15 @@ async def get_route(
     # available_routes[0]["meta_data"]=polyline.decode(wr2["polyline"])
     # return available_routes
     towards_stop = polyline.decode(wr1["polyline"], geojson=True)
-    towards_stop = [[d[1] / 10, d[0] / 10] for d in towards_stop]
+    towards_stop = [
+        [d[1] / 10, d[0] / 10] if d[1] < d[0] else [d[0] / 10, d[1] / 10]
+        for d in towards_stop
+    ]
     towards_destination = polyline.decode(wr2["polyline"], geojson=True)
-    towards_destination = [[d[1] / 10, d[0] / 10] for d in towards_destination]
+    towards_destination = [
+        [d[1] / 10, d[0] / 10] if d[1] < d[0] else [d[0] / 10, d[1] / 10]
+        for d in towards_destination
+    ]
 
     return [
         Route(
