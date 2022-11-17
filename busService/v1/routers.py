@@ -16,6 +16,7 @@ from config.middlewares import (
     is_authenticated,
     is_bus_or_authenticated,
 )
+from busService.v1.socket_manager import socketManager
 from config.deps import get_controller
 from config.config import AuthJWT
 from typing import List
@@ -120,6 +121,7 @@ async def createTrip(
     return Message(message=f"bus successfully regitered with id {trip}")
 
 
+"""
 @busrouter.post(
     "/trip/start/{trip_id}", response_model=Message, status_code=200
 )
@@ -149,6 +151,8 @@ async def startTrip(
 
     return Message(message=f"bus successfully regitered with id {trip}")
 
+"""
+
 
 @busrouter.post(
     "/live/create/{bus_id}", response_model=Message, status_code=201
@@ -163,7 +167,8 @@ async def post_location(
     await busLocationController.insert_or_update_bus_location(
         request.dict(), bus_id
     )
-    return Message(message=f"bus location successfully tracked")
+    await socketManager.broadcast(str(bus_id), 0, request.dict())
+    # return Message(message=f"bus location successfully tracked")
 
 
 @busrouter.post("/route/create", response_model=Message, status_code=201)

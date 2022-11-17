@@ -19,7 +19,7 @@ class BusConnection:
 
     async def broadcast(self, me, data):
         for websocket in self.active_connections:
-            if websocket is not me:
+            if me == 0 or websocket is not me:
                 await websocket.send_json(data)
 
 
