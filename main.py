@@ -1,10 +1,12 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, WebSocket
 from config.database import create_start_app_handler, create_stop_app_handler
 from sqlalchemy.orm import Session
 from typing import Dict
 from userService.v1.routers import userrouter
 from companyService.v1.routers import companyrouter
 from busService.v1.routers import busrouter
+from busService.v1.socket_manager import relay_data
+from config.middlewares import is_bus_or_authenticated
 
 
 tags_metadata = [
@@ -34,21 +36,21 @@ app.include_router(companyrouter, prefix="/api/v1")
 app.include_router(busrouter, prefix="/api/v1")
 
 
-@app.get("/")
+"""@app.get("/")
 async def root(db: Session = Depends()) -> Dict:
     return {"message": "Hello Tom"}
-
-
 """
-@app.post("/user/register")
-async def createUser(request:UserSignup,response_model=UserResponse):
-    query=usermodels.Users.insert().values(**request.dict())
-    try:
-       user_id=await database.execute(query)
-       return {**request.dict(),"id":user_id}
-    except Exception as e:
-        print(e)
 
-    return{"hello":"hello"}
 
-"""
+@app.websocket("/wb/{bus_id}")
+async def track_bus(
+    websocket: WebSocket,
+    bus_id: int
+    # token: str,
+    # is_bus: bool = Depends(is_bus_or_authenticated),
+):
+    """if is_bus == "unverified":
+        await websocket.close()
+    await relay_data(websocket, bus_id, is_bus == "owner")
+    """
+    await relay_data(websocket, bus_id, True)

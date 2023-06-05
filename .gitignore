@@ -2,3 +2,5 @@
 omnecal/*
 config/.env
 alembic/versions/*
+.mypy_cache
+.utils-local.py
